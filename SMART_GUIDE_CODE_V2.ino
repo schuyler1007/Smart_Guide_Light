@@ -113,7 +113,7 @@ void loop() {
         
 
            for (int i=0; i<150; i++){ // USUAL GREEN LIGHT BLOCK
-    if (LEDset1r[i] == 1){
+    if (LEDset_1[i] == 1){
       LEDS_1[i] = CRGB::Green;
     }
     else{
