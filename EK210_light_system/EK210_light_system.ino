@@ -1,3 +1,4 @@
+// code for sensor 1, Arduino 1
 #include <DFRobot_LIDAR07.h>
 #include <FastLED.h>
 #include <Wire.h>
@@ -12,6 +13,10 @@ CRGB leds[NUM_LEDS];
 
 DFROBOT_LIDAR07_IIC LIDAR07;
 int *arr = (int*) calloc(NUM_LEDS, 1);
+int distance = 0, prev_distance = 0;
+int s_num;
+char mode = 'g';
+char dir = 'r'; // r for right to left, l for left to right
 
 
 void setup() {
@@ -29,10 +34,31 @@ void loop() {
     arr[i] = 0;
    }
   // put your main code here, to run repeatedly:
-  int distance = calc_distance();
-  int s_num = distance / 3.3;
+  prev_distance = distance;
+  distance = calc_distance();
+  s_num = distance / 3.3;
   Serial.print("s_num: ");
   Serial.println(s_num);
+  check_direction();
+  
+  switch (mode){
+    case 'g':
+      green_light();
+      break;
+    case 'r':
+      red_light();
+      break;
+    case 'o':
+      orange_light();
+      break;
+    default:
+      green_light();
+  }
+  Serial.print("prev_distance: ");
+  Serial.println(prev_distance);
+}
+
+void green_light(){
   for (int i=0; i<20; i++){
     arr[i+s_num] = 1;
   }
@@ -47,6 +73,48 @@ void loop() {
   FastLED.show();
   delay(500);
 }
+
+void red_light(){
+  for (int i=0; i<20; i++){
+    arr[i+s_num] = 1;
+  }
+  for (int i=0; i<150; i++){
+    if (arr[i] == 1){
+      leds[i] = CRGB::Red;
+    }
+    else{
+      leds[i] = CRGB::Black;
+    }
+  }
+  FastLED.show();
+  delay(500);
+}
+
+void orange_light(){
+  for (int i=0; i<20; i++){
+    arr[i+s_num] = 1;
+  }
+  for (int i=0; i<150; i++){
+    if (arr[i] == 1){
+      leds[i] = CRGB::Orange;
+    }
+    else{
+      leds[i] = CRGB::Black;
+    }
+  }
+  FastLED.show();
+  delay(500);
+}
+
+void check_direction(){
+  if (prev_distance > distance){
+    mode = 'r';
+  }
+  else{
+    mode = 'g';
+  }
+}
+
 
 int calc_distance(){
   int errinfo;
