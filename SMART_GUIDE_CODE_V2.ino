@@ -235,8 +235,7 @@ void loop() {
       }
     }
   }
-
-
+    
 }
 
 void GreenLight(int distance, byte LEDset[],CRGB LEDS[]) {
@@ -244,8 +243,7 @@ void GreenLight(int distance, byte LEDset[],CRGB LEDS[]) {
   if(s_num < 20) s_num = s_num+20;
   for(int i = 0;i<20;i++){
     LEDset[s_num-20] = 1;
-    
-    }
+  }
   for (int i = 0; i < 150; i++) {  // USUAL GREEN LIGHT BLOCK
     if (LEDset[i] == 1) {
       LEDS[i] = CRGB::Green;
@@ -253,11 +251,13 @@ void GreenLight(int distance, byte LEDset[],CRGB LEDS[]) {
       LEDS[i] = CRGB::Black;
     }
   }
-delay(500);
+  FastLED.show();
+  delay(500);
   for (int i = 0; i < 150; i++) {
       LEDS[i] = CRGB::Black;
       LEDset[i] = 0;
-    }
+  }
+  FastLED.show();
 }
 
 void RedLight(int distance,byte LEDset[],CRGB LEDS[]) {
@@ -279,11 +279,13 @@ void RedLight(int distance,byte LEDset[],CRGB LEDS[]) {
         LEDS[i] = CRGB::Black;
       }
     }
-
+    FastLED.show();
+    delay(500);
     for (int i = 0; i < 150; i++) {
       LEDS[i] = CRGB::Black;
       LEDset[i] = 0;
     }
+    FastLED.show();
     flash_count++;
     delay(500);
   }
@@ -325,10 +327,12 @@ void OrangeLight(bool Area_first_time, byte LEDset[], CRGB LEDS[],int index_lowe
               LEDS[i] = CRGB::Black;
             }
           }
-            delay(1000);
+          FastLED.show();
+          delay(1000);
           for (int i = 0; i < 150; i++) {
             LEDS[i] = CRGB::Black;
           }
+          FastLED.show();
           flash_count++;
          
         }
