@@ -1,5 +1,3 @@
-
-
 #include <DFRobot_LIDAR07.h>
 #include <FastLED.h>
 #include <Wire.h>
@@ -16,21 +14,21 @@ DFROBOT_LIDAR07_IIC LIDAR07;
 
 int sum = 0;
 int duration;
-int dummy_var = 0;
-char walking_direction[12];  // SET TO "RightToLeft" or "LeftToRight"
 
-void OrangeLight(bool* Area_first_time, int LEDset[], CRGB LEDS,int index_lower_bound, int index_upper_bound, int duration,int* previous_checkpoint_time);
-void RedLight(int distance,int LEDset[],CRGB LEDS);
-void GreenLight(int distance, int LEDset[],CRGB LEDS);
+char walking_direction[12] = "RightToLeft";  // SET TO "RightToLeft" or "LeftToRight"
 
-int LEDset_1[NUM_LED] = {
+void OrangeLight(bool Area_first_time, byte LEDset[], CRGB LEDS,int index_lower_bound, int index_upper_bound, int duration,int previous_checkpoint_time);
+void RedLight(int distance,byte LEDset[],CRGB LEDS);
+void GreenLight(int distance, byte LEDset[],CRGB LEDS);
+
+byte LEDset_1[NUM_LED] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int LEDset_2[NUM_LED] = {
+byte LEDset_2[NUM_LED] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -46,28 +44,22 @@ int current_distance_2 = 0;  // current reading from sensor 2
 
 int previous_checkpoint_time = 5;  // Giving 5 seconds(assuming duration is in seconds) in advance so we
        
-int* previous_checkpoint_time_pointer = &previous_checkpoint_time;
 
 
 bool S1_first_time_1 = true;
 bool S2_first_time_1 = true;
 bool S3_first_time_1 = true;
-bool* S1_first_time_1_pointer = &S1_first_time_1;
-bool* S2_first_time_1_pointer = &S2_first_time_1;
-bool* S3_first_time_1_pointer = &S3_first_time_1;
+
 
 bool S1_first_time_2 = true;
 bool S2_first_time_2 = true;
 bool S3_first_time_2 = true;
-bool* S1_first_time_2_pointer = &S1_first_time_2;
-bool* S2_first_time_2_pointer = &S2_first_time_2;
-bool* S3_first_time_2_pointer = &S3_first_time_2;
+
 
 CRGB LEDS_1[NUM_LED];  // ASSIGN LEDSET 1
 CRGB LEDS_2[NUM_LED];  // ASSIGN LEDSET 2
 
-int start_point_clarification_count_1 =
-    0;  // clarifying person location to initate the sequence of commands
+int start_point_clarification_count_1 = 0;  // clarifying person location to initate the sequence of commands
 int start_point_clarification_count_2 = 0;
 
 int num_for_starting_timer = 0;
@@ -91,56 +83,49 @@ void setup() {
   //  pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
   //  pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
   Serial.begin(115200);
-  while (!LIDAR07.begin()) {
+  Serial.println("SerialOpen");
+ 
+      while (!LIDAR07.begin()) {    
     Serial.println("The sensor returned data validation error");
     delay(1000);
-  }
-
-  uint32_t version;
-  version = LIDAR07.getVersion();
-  Serial.print("VERSION: ");
-  Serial.print((version >> 24) & 0xFF, HEX);
-  Serial.print(".");
-  Serial.print((version >> 16) & 0xFF, HEX);
-  Serial.print(".");
-  Serial.print((version >> 8) & 0xFF, HEX);
-  Serial.print(".");
-  Serial.println((version)&0xFF, HEX);
-
-  LIDAR07.startFilter();
-
-  // walking_direction = "RightToLeft";
-
-  strcpy(walking_direction, "RightToLeft");
-}
-
-void loop() {
-  // READING DISTANCE FUNCTIONS HERE
-  distance_1 = calc_distance();
-
-  Serial.print("ledset is ");
-  //  Serial.println(LEDset_1);
-  
-  for (int i = 0; i < NUM_LED; i++) {
+    for (int i = 0; i < NUM_LED; i++) {
     if (LEDset_1[i] == 0) {
       LEDS_1[i] = CRGB::Black;
     }
   }
+  }
 
+
+
+
+  LIDAR07.startFilter();
+
+
+
+
+  
+}
+  
+void loop() {
+
+  // READING DISTANCE FUNCTIONS HERE
+  distance_1 = calc_distance();
+
+
+  
   if (!strcmp(walking_direction, "RightToLeft")) {
     if (num_for_starting_timer == 0) {  // STARTING TIMER, will executed once
       previous_checkpoint_time = 5;
       num_for_starting_timer = 1;
     }
 
-    // never setting LEDset_1 to 0 or 1
 
     if (350 < distance_1 < 500) start_point_clarification_count_1++;
 
     if (start_point_clarification_count_1 >   3) {  
       if (current_distance_1 < distance_1 + 50) {
        
-       GreenLight( distance_1,  LEDset_1, LEDS_1);
+       GreenLight( distance_1,LEDset_1, LEDS_1);
        
 
         current_distance_1 = distance_1;
@@ -148,11 +133,11 @@ void loop() {
         RedLight( distance_1,LEDset_1 , LEDS_1);
       }
 
-      OrangeLight(S1_first_time_1_pointer,  LEDset_1,  LEDS_1,  86, 150,  duration, previous_checkpoint_time_pointer);
+      OrangeLight(S1_first_time_1,  LEDset_1,  LEDS_1,  86, 150,  duration, previous_checkpoint_time);
 
-      OrangeLight(S2_first_time_1_pointer,  LEDset_1,  LEDS_1,  42, 86,  duration, previous_checkpoint_time_pointer);
+      OrangeLight(S2_first_time_1,  LEDset_1,  LEDS_1,  42, 86,  duration, previous_checkpoint_time);
 
-      OrangeLight(S3_first_time_1_pointer,  LEDset_1,  LEDS_1,  0, 43,  duration,  previous_checkpoint_time_pointer);
+      OrangeLight(S3_first_time_1,  LEDset_1,  LEDS_1,  0, 43,  duration,  previous_checkpoint_time);
 
       // SENSOR 1 STUFF FINISHED, SENSOR 2 STUFF BELOW, PERSON IS EXPECTED TO BE
       // AROUND THE CORNER OF THE L SHAPE AT THIS POINT
@@ -177,11 +162,11 @@ void loop() {
 
 
 
-        OrangeLight( S3_first_time_2_pointer,  LEDset_2,  LEDS_2,  0, 43,  duration,  previous_checkpoint_time_pointer);
+        OrangeLight( S3_first_time_2,  LEDset_2,  LEDS_2,  0, 43,  duration,  previous_checkpoint_time);
         
-        OrangeLight( S2_first_time_2_pointer,  LEDset_2,  LEDS_2,  42, 86,  duration,  previous_checkpoint_time_pointer);
+        OrangeLight( S2_first_time_2,  LEDset_2,  LEDS_2,  42, 86,  duration,  previous_checkpoint_time);
         
-        OrangeLight( S1_first_time_2_pointer,  LEDset_2,  LEDS_2,  86, 43,  duration,  previous_checkpoint_time_pointer);
+        OrangeLight( S1_first_time_2,  LEDset_2,  LEDS_2,  86, 43,  duration,  previous_checkpoint_time);
 
         // AFTER X AMOUNT OF MINUTES PASSED, RESET THE PROGRAM COULD BE ADDED
         // HERE
@@ -214,11 +199,11 @@ void loop() {
       
       }
 
-      OrangeLight(S1_first_time_2_pointer,  LEDset_2,  LEDS_2,  86, 150,  duration, previous_checkpoint_time_pointer);
+      OrangeLight(S1_first_time_2,  LEDset_2,  LEDS_2,  86, 150,  duration, previous_checkpoint_time);
       
-      OrangeLight(S2_first_time_2_pointer,  LEDset_2,  LEDS_2,  42, 86,  duration, previous_checkpoint_time_pointer);
+      OrangeLight(S2_first_time_2,  LEDset_2,  LEDS_2,  42, 86,  duration, previous_checkpoint_time);
       
-      OrangeLight(S3_first_time_2_pointer,  LEDset_2,  LEDS_2,  0, 43,  duration, previous_checkpoint_time_pointer);
+      OrangeLight(S3_first_time_2,  LEDset_2,  LEDS_2,  0, 43,  duration, previous_checkpoint_time);
 
       // SENSOR 2 STUFF FINISHED, SENSOR 1 STUFF BELOW, PERSON IS EXPECTED TO BE
       // AROUND THE CORNER OF THE L SHAPE AT THIS POINT
@@ -239,11 +224,11 @@ void loop() {
       
         }
 
-        OrangeLight(S3_first_time_1_pointer,  LEDset_1,  LEDS_1,  0, 43,  duration,  previous_checkpoint_time_pointer);
+        OrangeLight(S3_first_time_1,  LEDset_1,  LEDS_1,  0, 43,  duration,  previous_checkpoint_time);
         
-        OrangeLight( S2_first_time_1_pointer,  LEDset_1,  LEDS_1,  42, 86,  duration,  previous_checkpoint_time_pointer);
+        OrangeLight( S2_first_time_1,  LEDset_1,  LEDS_1,  42, 86,  duration,  previous_checkpoint_time);
         
-        OrangeLight( S1_first_time_1_pointer,  LEDset_1,  LEDS_1,  86, 150,  duration,  previous_checkpoint_time_pointer);
+        OrangeLight( S1_first_time_1,  LEDset_1,  LEDS_1,  86, 150,  duration,  previous_checkpoint_time);
 
         // AFTER X AMOUNT OF MINUTES PASSED, RESET THE PROGRAM COULD BE ADDED
         // HERE
@@ -251,12 +236,10 @@ void loop() {
     }
   }
 
-  for (int i = 0; i < 150; i++) {
-    Serial.print(LEDset_1[i]);
-  }
+
 }
 
-void GreenLight(int distance, int LEDset[],CRGB LEDS[]) {
+void GreenLight(int distance, byte LEDset[],CRGB LEDS[]) {
   int s_num = distance/3.3;
   if(s_num < 20) s_num = s_num+20;
   for(int i = 0;i<20;i++){
@@ -270,10 +253,10 @@ void GreenLight(int distance, int LEDset[],CRGB LEDS[]) {
       LEDS[i] = CRGB::Black;
     }
   }
-
+delay(500);
 }
 
-void RedLight(int distance,int LEDset[],CRGB LEDS[]) {
+void RedLight(int distance,byte LEDset[],CRGB LEDS[]) {
   int flash_count = 0;
   int temp_s_num  = distance /3.3;
   int s_num;
@@ -301,13 +284,13 @@ void RedLight(int distance,int LEDset[],CRGB LEDS[]) {
   }
 }
 
-void OrangeLight(bool* Area_first_time, int LEDset[], CRGB LEDS[],int index_lower_bound, int index_upper_bound, int duration,int* previous_checkpoint_time) {
+void OrangeLight(bool Area_first_time, byte LEDset[], CRGB LEDS[],int index_lower_bound, int index_upper_bound, int duration,int previous_checkpoint_time) {
   int new_index_lower_bound;
 
       if (index_lower_bound > 10) new_index_lower_bound = index_lower_bound - 10;
       else new_index_lower_bound = index_lower_bound;
 
-  if (*Area_first_time == true) {
+  if (Area_first_time == true) {
     int check_it = 0;
     for (int i = 0; i < 20; i++) {
       if (LEDset[new_index_lower_bound + i] == 1)
@@ -315,7 +298,7 @@ void OrangeLight(bool* Area_first_time, int LEDset[], CRGB LEDS[],int index_lowe
     }
 
     if (check_it == 1) {
-      int time_difference = duration - *previous_checkpoint_time;  // time spent walking in that section
+      int time_difference = duration - previous_checkpoint_time;  // time spent walking in that section
 
       if (time_difference > 20) {        // if above 20 seconds
         for (int i = 0; i < 150; i++) {  // reset
@@ -332,18 +315,18 @@ void OrangeLight(bool* Area_first_time, int LEDset[], CRGB LEDS[],int index_lowe
               LEDS[i] = CRGB::Black;
             }
           }
-
+            delay(1000);
           for (int i = 0; i < 150; i++) {
             LEDS[i] = CRGB::Black;
           }
           flash_count++;
-          delay(1000);
+         
         }
       }
     }
 
-    *Area_first_time ==  false;  // already entered once so do not enter this loop again
-    *previous_checkpoint_time = duration;  // update checkpoint
+    Area_first_time ==  false;  // already entered once so do not enter this loop again
+    previous_checkpoint_time = duration;  // update checkpoint
   }
 }
 
@@ -354,10 +337,8 @@ int calc_distance() {
     delay(1000);
   }
   Serial.print("Distance:");
-  Serial.print(LIDAR07.getDistanceMM());
-  Serial.println(" mm");
-  Serial.print("Amplitude:");
-  Serial.println(LIDAR07.getSignalAmplitude());
+  Serial.print(LIDAR07.getDistanceMM()/10);
+  Serial.println(" cm");
   delay(1000);
-  return (LIDAR07.getDistanceMM());
+  return (LIDAR07.getDistanceMM()/10);
 }
