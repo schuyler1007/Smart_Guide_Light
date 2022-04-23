@@ -56,8 +56,8 @@ bool S2_first_time_2 = true;
 bool S3_first_time_2 = true;
 
 
-CRGB LEDS_1[NUM_LED];  // ASSIGN LEDSET 1
-CRGB LEDS_2[NUM_LED];  // ASSIGN LEDSET 2
+CRGB LEDS_1[NUM_LED];  // ASSIGN LEDset 1
+CRGB LEDS_2[NUM_LED];  // ASSIGN LEDset 2
 
 int start_point_clarification_count_1 = 0;  // clarifying person location to initate the sequence of commands
 int start_point_clarification_count_2 = 0;
@@ -254,6 +254,10 @@ void GreenLight(int distance, byte LEDset[],CRGB LEDS[]) {
     }
   }
 delay(500);
+  for (int i = 0; i < 150; i++) {
+      LEDS[i] = CRGB::Black;
+      LEDset[i] = 0;
+    }
 }
 
 void RedLight(int distance,byte LEDset[],CRGB LEDS[]) {
@@ -278,10 +282,16 @@ void RedLight(int distance,byte LEDset[],CRGB LEDS[]) {
 
     for (int i = 0; i < 150; i++) {
       LEDS[i] = CRGB::Black;
+      LEDset[i] = 0;
     }
     flash_count++;
     delay(500);
   }
+
+  for (int i = 0; i < 150; i++) { // reset
+      LEDS[i] = CRGB::Black;
+      LEDset[i] = 0;
+    }
 }
 
 void OrangeLight(bool Area_first_time, byte LEDset[], CRGB LEDS[],int index_lower_bound, int index_upper_bound, int duration,int previous_checkpoint_time) {
@@ -327,6 +337,10 @@ void OrangeLight(bool Area_first_time, byte LEDset[], CRGB LEDS[],int index_lowe
 
     Area_first_time ==  false;  // already entered once so do not enter this loop again
     previous_checkpoint_time = duration;  // update checkpoint
+      for (int i = 0; i < 150; i++) {
+      LEDS[i] = CRGB::Black;
+      LEDset[i] = 0;
+    }
   }
 }
 
