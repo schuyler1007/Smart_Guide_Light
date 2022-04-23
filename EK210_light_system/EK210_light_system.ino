@@ -37,15 +37,14 @@ void loop() {
    }
   // put your main code here, to run repeatedly:
   prev_distance = distance;
-  prev_millsec = millsec;
   distance = calc_distance();
   millsec = millis();
   s_num = distance / 3.3;
   Serial.print("s_num: ");
   Serial.println(s_num);
+  check_direction();
   check_position();
   check_duration();
-  check_direction();
   
   switch (mode){
     case 'g':
@@ -130,12 +129,14 @@ void check_direction(){ // to see if a person is going in the right direction
 }
 
 void check_position(){
-  if (abs(prev_distance-distance) >= 10){
-    position_cnt++;
+  // if it is staying at the same place (within 10cm), it needs to change the mode to orange
+  // if it is not staying at the same place, it needs to reset the timer
+  if (abs(distance - prev_distance) <= 10){
+    return;
   }
-  if (position_cnt >= 10){
-    millsec = 0;
-    prev_millsec = 0;
+  else{
+    prev_millsec = millis();
+    Serial.println("Resetting timer");
   }
 }
 
