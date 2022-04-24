@@ -78,8 +78,15 @@ void set_direction(){
 }
 
 void green_light(){
-  for (int i=0; i<20; i++){
-    arr[i+s_num] = 1;
+  if (dir == 'r'){
+    for (int i=0; i<20; i++){
+      arr[s_num-i] = 1;
+    }
+  }
+  else{
+    for (int i=0; i<20; i++){
+      arr[i+s_num] = 1;
+    } 
   }
   for (int i=0; i<150; i++){
     if (arr[i] == 1){
