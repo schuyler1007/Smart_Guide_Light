@@ -6,6 +6,7 @@
 
 #define NUM_LEDS 150
 #define DATA_PIN 4
+#define BUTTON_PIN 5
 #define CLOCK_PIN 13
 #define ONE_SET 15
 
@@ -19,10 +20,12 @@ int position_cnt = 0;
 int s_num;
 char mode = 'g';
 char dir = 'r'; // r for right to left, l for left to right
+int interval = 10;
 
 
 void setup() {
   // put your setup code here, to run once:
+  pinMode(BUTTON_PIN, INPUT);
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); 
   Serial.begin(115200);
   while(!LIDAR07.begin()){
@@ -40,11 +43,12 @@ void loop() {
   distance = calc_distance();
   millsec = millis();
   s_num = distance / 3.3;
-  Serial.print("s_num: ");
-  Serial.println(s_num);
-  check_direction();
+  //Serial.print("s_num: ");
+  //Serial.println(s_num);
+  //check_direction();
   check_position();
-  check_duration();
+  //check_duration();
+  check_mode();
   
   switch (mode){
     case 'g':
@@ -59,8 +63,18 @@ void loop() {
     default:
       green_light();
   }
-  Serial.print("prev_distance: ");
-  Serial.println(prev_distance);
+  //Serial.print("prev_distance: ");
+  //Serial.println(prev_distance);
+  
+}
+
+void set_direction(){
+  if (digitalRead(BUTTON_PIN) == HIGH){
+    dir = 'l';
+  }
+  else{
+    dir = 'r';
+  }
 }
 
 void green_light(){
@@ -107,31 +121,29 @@ void orange_light(){
   for (int i=0; i<20; i++){
     arr[i+s_num] = 1;
   }
-  for (int i=0; i<150; i++){
-    if (arr[i] == 1){
-      leds[i] = CRGB::Orange;
+  for (int j=0; j<5; j++){
+    for (int i=0; i<150; i++){
+      if (arr[i] == 1){
+        leds[i] = CRGB::Orange;
+      }
+      else{
+        leds[i] = CRGB::Black;
+      }
     }
-    else{
+    FastLED.show();
+    delay(50);
+    for (int i=0; i<150; i++){
       leds[i] = CRGB::Black;
     }
-  }
-  FastLED.show();
-  delay(500);
-}
-
-void check_direction(){ // to see if a person is going in the right direction
-  if (prev_distance > distance){
-    mode = 'r';
-  }
-  else{
-    mode = 'g';
+    FastLED.show();
+    delay(50);
   }
 }
 
 void check_position(){
   // if it is staying at the same place (within 10cm), it needs to change the mode to orange
   // if it is not staying at the same place, it needs to reset the timer
-  if (abs(distance - prev_distance) <= 10){
+  if (abs(distance - prev_distance) <= 5){
     return;
   }
   else{
@@ -140,8 +152,14 @@ void check_position(){
   }
 }
 
-void check_duration(){ // to see if a person is staying at the same spot
-  if (millsec - prev_millsec >= 3000){
+void check_mode(){
+  if (prev_distance - distance >= 20 && dir == 'r'){
+    mode = 'r';
+  }
+  else if (distance - prev_distance >= 20 && dir == 'l'){
+    mode = 'r';
+  }
+  else if (millsec - prev_millsec >= interval*1000){
     mode = 'o';
   }
   else{
@@ -149,16 +167,15 @@ void check_duration(){ // to see if a person is staying at the same spot
   }
 }
 
-
 int calc_distance(){
   int errinfo;
   while(!LIDAR07.startMeasure()){
     Serial.print("Incorrect data was returned");
     delay(1000);
   }
-  Serial.print("Distance: ");
-  Serial.print(LIDAR07.getDistanceMM() / 10);
-  Serial.println(" cm");
+  //Serial.print("Distance: ");
+  //Serial.print(LIDAR07.getDistanceMM() / 10);
+  ///Serial.println(" cm");
   delay(500);
   return (LIDAR07.getDistanceMM() / 10);
 }
