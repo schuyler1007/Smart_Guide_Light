@@ -101,9 +101,15 @@ void green_light(){
 }
 
 void red_light(){
-  
-  for (int i=0; i<20; i++){
-    arr[i+s_num] = 1;
+  if (dir == 'r'){
+    for (int i=0; i<20; i++){
+      arr[s_num-i] = 1;
+    }
+  }
+  else{
+    for (int i=0; i<20; i++){
+      arr[i+s_num] = 1;
+    } 
   }
   for (int j=0; j<10; j++){
     for (int i=0; i<150; i++){
