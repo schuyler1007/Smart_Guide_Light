@@ -18,7 +18,7 @@ unsigned long millsec = 0, prev_millsec = 0;
 int position_cnt = 0;
 int s_num;
 char mode = 'g';
-char dir = 'l'; // r for right to left, l for left to right
+char dir = 'r'; // r for right to left, l for left to right
 int interval = 10;
 
 
@@ -130,8 +130,15 @@ void red_light(){
 }
 
 void orange_light(){
-    for (int i=0; i<20; i++){
-        arr[i+s_num] = 1;
+     if (dir == 'r'){
+        for (int i=0; i<20; i++){
+            arr[s_num-i] = 1;
+        }
+    }
+    else{
+        for (int i=0; i<20; i++){
+            arr[i+s_num] = 1;
+        }
     }
     for (int j=0; j<5; j++){
         for (int i=0; i<150; i++){
