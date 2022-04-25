@@ -102,7 +102,7 @@ void green_light(){
 
 void red_light(){
 
-    if (dir == 'l'){
+    if (dir == 'r'){
         for (int i=0; i<20; i++){
             arr[s_num-i] = 1;
         }
@@ -174,10 +174,10 @@ void check_position(){
 }
 
 void check_mode(){
-    if (prev_distance - distance >= 20 && dir == 'l'){
+    if (prev_distance - distance >= 20 && dir == 'r'){
         mode = 'r';
     }
-    else if (distance - prev_distance >= 20 && dir == 'r'){
+    else if (distance - prev_distance >= 20 && dir == 'l'){
         mode = 'r';
     }
     else if (millsec - prev_millsec >= interval*1000){
