@@ -19,7 +19,7 @@ unsigned long millsec = 0, prev_millsec = 0;
 int position_cnt = 0;
 int s_num;
 char mode = 'g';
-char dir = 'l'; // r for right to left, l for left to right
+char dir = 'r'; // r for right to left, l for left to right
 int interval = 10;
 
 
@@ -65,7 +65,7 @@ void loop() {
     }
     //Serial.print("prev_distance: ");
     //Serial.println(prev_distance);
-    Serial.println(mode);
+    
 }
 
 void set_direction(){
@@ -78,7 +78,7 @@ void set_direction(){
 }
 
 void green_light(){
-    if (dir == 'r'){
+    if (dir == 'l'){
         for (int i=0; i<20; i++){
             arr[s_num-i] = 1;
         }
@@ -102,7 +102,7 @@ void green_light(){
 
 void red_light(){
 
-    if (dir == 'r'){
+    if (dir == 'l'){
         for (int i=0; i<20; i++){
             arr[s_num-i] = 1;
         }
@@ -132,7 +132,7 @@ void red_light(){
 }
 
 void orange_light(){
-    if (dir == 'r'){
+    if (dir == 'l'){
         for (int i=0; i<20; i++){
             arr[s_num-i] = 1;
         }
@@ -174,10 +174,10 @@ void check_position(){
 }
 
 void check_mode(){
-    if (prev_distance - distance >= 20 && dir == 'r'){
+    if (prev_distance - distance >= 20 && dir == 'l'){
         mode = 'r';
     }
-    else if (distance - prev_distance >= 20 && dir == 'l'){
+    else if (distance - prev_distance >= 20 && dir == 'r'){
         mode = 'r';
     }
     else if (millsec - prev_millsec >= interval*1000){
