@@ -19,7 +19,7 @@ unsigned long millsec = 0, prev_millsec = 0;
 int position_cnt = 0;
 int s_num;
 char mode = 'g';
-char dir = 'r'; // r for right to left, l for left to right
+char dir = 'l'; // r for right to left, l for left to right
 int interval = 10;
 
 
