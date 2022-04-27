@@ -6,7 +6,8 @@
 
 #define NUM_LEDS 300
 #define DATA_PIN 4
-#define BUTTON_PIN 5
+#define DIR_BUTTON_PIN 5
+#define SET_BUTTON_PIN 6
 #define CLOCK_PIN 13
 #define ONE_SET 15
 
@@ -20,12 +21,14 @@ int position_cnt = 0;
 int s_num;
 char mode = 'g';
 char dir = 'r'; // r for right to left, l for left to right
+char setting = 'm'; // m for museum mode, d for light mode
 int interval = 10;
 
 
 void setup() {
     // put your setup code here, to run once:
-    pinMode(BUTTON_PIN, INPUT);
+    pinMode(DIR_BUTTON_PIN, INPUT);
+    pinMode(SET_BUTTON_PIN, INPUT);
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
     Serial.begin(115200);
     while(!LIDAR07.begin()){
@@ -69,7 +72,7 @@ void loop() {
 }
 
 void set_direction(){
-    if (digitalRead(BUTTON_PIN) == HIGH){
+    if (digitalRead(DIR_BUTTON_PIN) == HIGH){
         dir = 'l';
     }
     else{
@@ -77,15 +80,24 @@ void set_direction(){
     }
 }
 
+void set_setting(){
+    if (digitalRead(SET_BUTTON_PIN) == HIGH){
+        dir = 'm';
+    }
+    else{
+        dir = 'd';
+    }
+}
+
 void green_light(){
-    if (dir == 'l'){
+    if (dir == 'r'){
         for (int i=0; i<20; i++){
-            arr[s_num-i] = 1;
+            arr[s_num+i] = 1;
         }
     }
     else{
         for (int i=0; i<20; i++){
-            arr[i+s_num] = 1;
+            arr[s_num-i] = 1;
         }
     }
     for (int i=0; i<150; i++){
@@ -101,7 +113,6 @@ void green_light(){
 }
 
 void red_light(){
-
     if (dir == 'r'){
         for (int i=0; i<20; i++){
             arr[s_num-i] = 1;
@@ -109,7 +120,7 @@ void red_light(){
     }
     else{
         for (int i=0; i<20; i++){
-            arr[i+s_num] = 1;
+            arr[s_num+1] = 1;
         }
     }
     for (int j=0; j<10; j++){
@@ -132,15 +143,9 @@ void red_light(){
 }
 
 void orange_light(){
-    if (dir == 'l'){
-        for (int i=0; i<20; i++){
-            arr[s_num-i] = 1;
-        }
-    }
-    else{
-        for (int i=0; i<20; i++){
-            arr[i+s_num] = 1;
-        }
+    for (int i=0; i<10; i++){
+        arr[s_num-i] = 1;
+        arr[s_num+i] = 1;
     }
     for (int j=0; j<5; j++){
         for (int i=0; i<150; i++){
@@ -159,6 +164,29 @@ void orange_light(){
         FastLED.show();
         delay(50);
     }
+}
+
+void white_light(){
+    if (dir == 'r'){
+        for (int i=0; i<20; i++){
+            arr[s_num+i] = 1;
+        }
+    }
+    else{
+        for (int i=0; i<20; i++){
+            arr[s_num-i] = 1;
+        }
+    }
+    for (int i=0; i<150; i++){
+        if (arr[i] == 1){
+            leds[i*2] = CRGB::White;
+        }
+        else{
+            leds[i*2] = CRGB::Black;
+        }
+    }
+    FastLED.show();
+    delay(500);
 }
 
 void check_position(){
