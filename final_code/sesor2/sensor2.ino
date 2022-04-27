@@ -44,31 +44,29 @@ void loop() {
     // put your main code here, to run repeatedly:
     prev_distance = distance;
     distance = calc_distance();
-    millsec = millis();
     s_num = distance / 3.3;
-    //Serial.print("s_num: ");
-    //Serial.println(s_num);
-    //check_direction();
-    check_position();
-    //check_duration();
-    check_mode();
+    if (setting == 'm'){
+        millsec = millis();
+        check_position();
+        check_mode();
 
-    switch (mode){
-        case 'g':
-            green_light();
-            break;
-        case 'r':
-            red_light();
-            break;
-        case 'o':
-            orange_light();
-            break;
-        default:
-            green_light();
+        switch (mode){
+            case 'g':
+                green_light();
+                break;
+            case 'r':
+                red_light();
+                break;
+            case 'o':
+                orange_light();
+                break;
+            default:
+                green_light();
+        }
     }
-    //Serial.print("prev_distance: ");
-    //Serial.println(prev_distance);
-    
+    else{
+        white_light();
+    }
 }
 
 void set_direction(){
