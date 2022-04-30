@@ -1,4 +1,3 @@
-// code for sensor 1, Arduino 1
 #include <DFRobot_LIDAR07.h>
 #include <FastLED.h>
 #include <Wire.h>
@@ -8,6 +7,7 @@
 #define DATA_PIN 4
 #define DIR_BUTTON_PIN 5
 #define SET_BUTTON_PIN 6
+#define INTERVAL_BUTTON_PIN 7
 #define CLOCK_PIN 13
 #define ONE_SET 15
 
@@ -21,14 +21,21 @@ int position_cnt = 0;
 int s_num;
 char mode = 'g';
 char dir = 'r'; // r for right to left, l for left to right
+int pre_dir = 0;
+int dir_state = 0;
 char setting = 'm'; // m for museum mode, d for light mode
-int interval = 10;
+int pre_setting = 0;
+int setting_state = 0;
+int interval = 5;
+int pre_interval = 0;
+int interval_state = 0;
 
 
 void setup() {
     // put your setup code here, to run once:
     pinMode(DIR_BUTTON_PIN, INPUT);
     pinMode(SET_BUTTON_PIN, INPUT);
+    pinMode(INTERVAL_BUTTON_PIN, INPUT);
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
     Serial.begin(115200);
     while(!LIDAR07.begin()){
@@ -41,6 +48,9 @@ void loop() {
     for (int i=0; i<150; i++){
         arr[i] = 0;
     }
+    set_direction();
+    set_setting();
+    set_interval();
     // put your main code here, to run repeatedly:
     prev_distance = distance;
     distance = calc_distance();
@@ -70,20 +80,51 @@ void loop() {
 }
 
 void set_direction(){
-    if (digitalRead(DIR_BUTTON_PIN) == HIGH){
-        dir = 'l';
+    dir_state = digitalRead(DIR_BUTTON_PIN);
+    if (dir_state == HIGH && pre_dir == 0){
+        if (dir == 'r'){
+            dir = 'l';
+        }
+        else{
+            dir = 'r';
+        }
+        delay(100);
+        pre_dir = 1;
     }
     else{
-        dir = 'r';
+        pre_dir = 0;
     }
 }
 
 void set_setting(){
-    if (digitalRead(SET_BUTTON_PIN) == HIGH){
-        dir = 'm';
+    setting_state = digitalRead(SET_BUTTON_PIN);
+    if (setting_state == HIGH && pre_setting == 0){
+        if (setting == 'm'){
+            setting = 'd';
+        }
+        else{
+            setting = 'm';
+        }
+        delay(100);
+        pre_setting = 1;
     }
     else{
-        dir = 'd';
+        pre_setting = 0;
+    }
+}
+
+void set_interval(){
+    interval_state = digitalRead(INTERVAL_BUTTON_PIN);
+    if (interval_state == HIGH && pre_interval == 0){
+        if (interval == 10){
+            interval = 0;
+        }
+        interval++;
+        delay(100);
+        pre_interval = 1;
+    }
+    else{
+        pre_interval = 0;
     }
 }
 

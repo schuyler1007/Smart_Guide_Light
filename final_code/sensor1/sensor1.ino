@@ -26,7 +26,7 @@ int dir_state = 0;
 char setting = 'm'; // m for museum mode, d for light mode
 int pre_setting = 0;
 int setting_state = 0;
-int interval = 10;
+int interval = 5;
 int pre_interval = 0;
 int interval_state = 0;
 
@@ -116,6 +116,9 @@ void set_setting(){
 void set_interval(){
     interval_state = digitalRead(INTERVAL_BUTTON_PIN);
     if (interval_state == HIGH && pre_interval == 0){
+        if (interval == 10){
+            interval = 0;
+        }
         interval++;
         delay(100);
         pre_interval = 1;
