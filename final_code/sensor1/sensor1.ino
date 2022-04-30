@@ -1,10 +1,9 @@
-// code for sensor 1, Arduino 1
 #include <DFRobot_LIDAR07.h>
 #include <FastLED.h>
 #include <Wire.h>
 #include <string.h>
 
-#define NUM_LEDS 300
+#define NUM_LEDS 150
 #define DATA_PIN 4
 #define DIR_BUTTON_PIN 5
 #define SET_BUTTON_PIN 6
@@ -14,14 +13,18 @@
 CRGB leds[NUM_LEDS];
 
 DFROBOT_LIDAR07_IIC LIDAR07;
-int *arr = (int*) calloc(150, 1);
+int *arr = (int*) calloc(NUM_LEDS, 1);
 int distance = 0, prev_distance = 0;
 unsigned long millsec = 0, prev_millsec = 0;
 int position_cnt = 0;
 int s_num;
 char mode = 'g';
 char dir = 'r'; // r for right to left, l for left to right
+int pre_dir = 0;
+int dir_state = 0;
 char setting = 'm'; // m for museum mode, d for light mode
+int pre_setting = 0;
+int setting_state = 0;
 int interval = 10;
 
 
@@ -38,19 +41,19 @@ void setup() {
 }
 
 void loop() {
-    for (int i=0; i<150; i++){
+    for (int i=0; i<NUM_LEDS; i++){
         arr[i] = 0;
     }
     // put your main code here, to run repeatedly:
     prev_distance = distance;
     distance = calc_distance();
     s_num = distance / 3.3;
-    if (setting == 'm'){
+    if (setting == 'm') {
         millsec = millis();
         check_position();
         check_mode();
 
-        switch (mode){
+        switch (mode) {
             case 'g':
                 green_light();
                 break;
@@ -70,40 +73,54 @@ void loop() {
 }
 
 void set_direction(){
-    if (digitalRead(DIR_BUTTON_PIN) == HIGH){
-        dir = 'l';
+    dir_state = digitalRead(DIR_BUTTON_PIN);
+    if (dir_state == HIGH && pre_dir == 0){
+        if (dir == 'r'){
+            dir = 'l';
+        }
+        else{
+            dir = 'r';
+        }
+        delay(100);
     }
     else{
-        dir = 'r';
+        pre_dir = 0;
     }
 }
 
 void set_setting(){
-    if (digitalRead(SET_BUTTON_PIN) == HIGH){
-        dir = 'm';
+    setting_state = digitalRead(SET_BUTTON_PIN);
+    if (setting_state == HIGH && pre_setting == 0){
+        if (setting == 'm'){
+            setting = 'd';
+        }
+        else{
+            setting = 'm';
+        }
+        delay(100);
     }
     else{
-        dir = 'd';
+        pre_setting = 0;
     }
 }
 
 void green_light(){
     if (dir == 'r'){
         for (int i=0; i<20; i++){
-            arr[s_num+i] = 1;
+            arr[s_num-i] = 1;
         }
     }
     else{
         for (int i=0; i<20; i++){
-            arr[s_num-i] = 1;
+            arr[i+s_num] = 1;
         }
     }
     for (int i=0; i<150; i++){
         if (arr[i] == 1){
-            leds[i*2] = CRGB::Green;
+            leds[i] = CRGB::Green;
         }
         else{
-            leds[i*2] = CRGB::Black;
+            leds[i] = CRGB::Black;
         }
     }
     FastLED.show();
@@ -113,27 +130,27 @@ void green_light(){
 void red_light(){
     if (dir == 'r'){
         for (int i=0; i<20; i++){
-            arr[s_num-i] = 1;
+            arr[s_num+i] = 1;
         }
     }
     else{
         for (int i=0; i<20; i++){
-            arr[s_num+1] = 1;
+            arr[s_num-i] = 1;
         }
     }
     for (int j=0; j<10; j++){
         for (int i=0; i<150; i++){
             if (arr[i] == 1){
-                leds[i*2] = CRGB::Red;
+                leds[i] = CRGB::Red;
             }
             else{
-                leds[i*2] = CRGB::Black;
+                leds[i] = CRGB::Black;
             }
         }
         FastLED.show();
         delay(25);
         for (int i=0; i<150; i++){
-            leds[i*2] = CRGB::Black;
+            leds[i] = CRGB::Black;
         }
         FastLED.show();
         delay(25);
@@ -141,23 +158,23 @@ void red_light(){
 }
 
 void orange_light(){
-    for (int i=0; i<10; i++){
-        arr[s_num-i] = 1;
-        arr[s_num+i] = 1;
+    for (int i=0; i<10; i++) {
+        arr[s_num - i] = 1;
+        arr[s_num + i] = 1;
     }
     for (int j=0; j<5; j++){
         for (int i=0; i<150; i++){
             if (arr[i] == 1){
-                leds[i*2] = CRGB::Orange;
+                leds[i] = CRGB::Orange;
             }
             else{
-                leds[i*2] = CRGB::Black;
+                leds[i] = CRGB::Black;
             }
         }
         FastLED.show();
         delay(50);
         for (int i=0; i<150; i++){
-            leds[i*2] = CRGB::Black;
+            leds[i] = CRGB::Black;
         }
         FastLED.show();
         delay(50);
@@ -167,20 +184,20 @@ void orange_light(){
 void white_light(){
     if (dir == 'r'){
         for (int i=0; i<20; i++){
-            arr[s_num+i] = 1;
+            arr[s_num-i] = 1;
         }
     }
     else{
         for (int i=0; i<20; i++){
-            arr[s_num-i] = 1;
+            arr[i+s_num] = 1;
         }
     }
     for (int i=0; i<150; i++){
         if (arr[i] == 1){
-            leds[i*2] = CRGB::White;
+            leds[i] = CRGB::White;
         }
         else{
-            leds[i*2] = CRGB::Black;
+            leds[i] = CRGB::Black;
         }
     }
     FastLED.show();
@@ -201,10 +218,10 @@ void check_position(){
 
 void check_mode(){
     if (prev_distance - distance >= 20 && dir == 'r'){
-        mode = 'r';
+        mode = 'r'; // when it should not be coming towards the sensor
     }
     else if (distance - prev_distance >= 20 && dir == 'l'){
-        mode = 'r';
+        mode = 'r'; // when it should not be going away from the sensor
     }
     else if (millsec - prev_millsec >= interval*1000){
         mode = 'o';
@@ -220,9 +237,9 @@ int calc_distance(){
         Serial.print("Incorrect data was returned");
         delay(1000);
     }
-    Serial.print("Distance: ");
-    Serial.print(LIDAR07.getDistanceMM() / 10);
-    Serial.println(" cm");
+    //Serial.print("Distance: ");
+    //Serial.print(LIDAR07.getDistanceMM() / 10);
+    ///Serial.println(" cm");
     delay(500);
     return (LIDAR07.getDistanceMM() / 10);
 }
