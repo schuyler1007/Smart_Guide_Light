@@ -292,7 +292,7 @@ int current_time  = millis();
 
             while(millis()- current_time < 10000){
 
-                uint8_t pos = map(beat8(35, 0), 0, 255, 0, NUM_LEDS -1);
+                uint8_t pos = map(beat8(20, 0), 0, 255, 0, NUM_LEDS -1); // for changing speed play around with the frequency value '20' in this line.
       if(dir == 'r'){  // IF  THE DIRECTION IS REVERSE CHANGE THIS TO 'l'
           leds[pos] = CHSV( hue, 200, 255);
 
