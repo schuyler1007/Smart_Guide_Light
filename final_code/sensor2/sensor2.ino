@@ -30,6 +30,9 @@ int interval = 5;
 int pre_interval = 0;
 int interval_state = 0;
 
+// directional lights
+uint8_t hue = 171; // change this to change color,you can look up hue to color conversions.
+
 
 void setup() {
     // put your setup code here, to run once:
@@ -42,6 +45,7 @@ void setup() {
         Serial.println("The sensor returned data validation error");
         delay(1000);
     }
+    directional_lights(dir);
 }
 
 void loop() {
@@ -267,3 +271,35 @@ int calc_distance(){
     delay(500);
     return (LIDAR07.getDistanceMM() / 10);
 }
+void directional_lights(char dir){
+int current_time  = millis();
+
+            while(millis()- current_time < 10000){
+
+                uint16_t pos = map(beat8(15, 0), 0, 255, 0, NUM_LEDS -1);
+      if(dir == 'l'){  // IF  THE DIRECTION IS REVERSE CHANGE THIS TO 'l'
+          leds[pos] = CHSV( hue, 200, 255);
+
+          fadeToBlackBy(leds, NUM_LEDS,50);
+   
+          FastLED.show();
+ 
+ 
+
+        
+        }
+        else{
+          leds[NUM_LEDS-pos] = CHSV( hue, 200, 255);
+
+          fadeToBlackBy(leds, NUM_LEDS,50);
+   
+          FastLED.show();
+          
+          
+          }
+
+
+            }
+
+  
+  }
