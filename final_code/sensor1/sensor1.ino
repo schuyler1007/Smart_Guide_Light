@@ -30,6 +30,10 @@ int interval = 5;
 int pre_interval = 0;
 int interval_state = 0;
 
+// directional lights
+
+uint8_t hue = 171; // this changes the color, you can look up hue to color conversions.
+
 
 void setup() {
     // put your setup code here, to run once:
@@ -43,7 +47,7 @@ void setup() {
         delay(1000);
     }
 
-    directional_lights('r');
+    directional_lights(dir);
 }
 
 void loop() {
@@ -280,7 +284,7 @@ int calc_distance(){
 
 
 
-uint8_t hue = 171; // this changes the color, you can look up hue to color conversions.
+
 
 
 void directional_lights(char dir){
