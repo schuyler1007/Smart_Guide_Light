@@ -91,9 +91,11 @@ void set_direction(){
     if (dir_state == HIGH && pre_dir == 0){
         if (dir == 'r'){
             dir = 'l';
+            directional_lights(dir);
         }
         else{
             dir = 'r';
+            directional_lights(dir);
         }
         delay(100);
         pre_dir = 1;
