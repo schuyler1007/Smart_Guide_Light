@@ -42,12 +42,13 @@ void setup() {
     pinMode(INTERVAL_BUTTON_PIN, INPUT);
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
     Serial.begin(115200);
+    directional_lights(dir);
     while(!LIDAR07.begin()){
         Serial.println("The sensor returned data validation error");
         delay(1000);
     }
 
-    directional_lights(dir);
+  
 }
 
 void loop() {
