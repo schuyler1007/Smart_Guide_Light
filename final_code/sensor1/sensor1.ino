@@ -47,7 +47,7 @@ void setup() {
         Serial.println("The sensor returned data validation error");
         delay(1000);
     }
-
+direectional_ligths(dir);
   
 }
 
@@ -294,7 +294,7 @@ int current_time  = millis();
             while(millis()- current_time < 10000){
 
                 uint8_t pos = map(beat8(20, 0), 0, 255, 0, NUM_LEDS -1); // for changing speed play around with the frequency value '20' in this line.
-      if(dir == 'r'){  // IF  THE DIRECTION IS REVERSE CHANGE THIS TO 'l'
+      if(dir == 'l'){  // IF  THE DIRECTION IS REVERSE CHANGE THIS TO 'l'
           leds[pos] = CHSV( hue, 200, 255);
 
           fadeToBlackBy(leds, NUM_LEDS,30);
