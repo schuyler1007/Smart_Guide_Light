@@ -279,7 +279,7 @@ int current_time  = millis();
             while(millis()- current_time < 10000){
 
                 uint16_t pos = map(beat8(15, 0), 0, 255, 0, NUM_LEDS -1);
-      if(dir == 'l'){  // IF  THE DIRECTION IS REVERSE CHANGE THIS TO 'l'
+      if(dir == 'r'){  // IF  THE DIRECTION IS REVERSE CHANGE THIS TO 'l'
           leds[pos] = CHSV( hue, 200, 255);
 
           fadeToBlackBy(leds, NUM_LEDS,50);
@@ -302,6 +302,8 @@ int current_time  = millis();
 
 
             }
-
+    for(int i =0;i<NUM_LEDS;i++){
+      leds[i] = CRGB::Black;
+      }
   
   }
