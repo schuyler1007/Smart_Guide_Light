@@ -42,12 +42,11 @@ void setup() {
     pinMode(INTERVAL_BUTTON_PIN, INPUT);
     FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
     Serial.begin(115200);
-    directional_lights(dir);
     while(!LIDAR07.begin()){
         Serial.println("The sensor returned data validation error");
         delay(1000);
     }
-direectional_ligths(dir);
+  directional_lights(dir);
   
 }
 
@@ -246,7 +245,7 @@ void check_position(){
     }
     else{
         prev_millsec = millis();
-        Serial.println("Resetting timer");
+        //Serial.println("Resetting timer");
     }
 }
 
@@ -268,12 +267,12 @@ void check_mode(){
 int calc_distance(){
     int errinfo;
     while(!LIDAR07.startMeasure()){
-        Serial.print("Incorrect data was returned");
+        //Serial.print("Incorrect data was returned");
         delay(1000);
     }
     //Serial.print("Distance: ");
     //Serial.print(LIDAR07.getDistanceMM() / 10);
-    ///Serial.println(" cm");
+    //Serial.println(" cm");
     delay(500);
     return (LIDAR07.getDistanceMM() / 10);
 }
@@ -319,6 +318,9 @@ int current_time  = millis();
 
 
             }
+            for(int i = 0;i<NUM_LEDS;i++){
+              leds[i] = CRGB::Black;
+              }
 
   
   }
